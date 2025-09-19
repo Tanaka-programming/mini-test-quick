@@ -1,57 +1,230 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LIFF テストアプリ - getDummy()</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>LINEミニアプリ | 共通プロフィール ダミー自動入力サンプル</title>
+  <style>
+    :root { --bg:#0b0f14; --card:#141a22; --fg:#e9eef7; --muted:#9fb0c7; --acc:#2dd4bf; --danger:#ef4444; --warn:#f59e0b; }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.6 system-ui, -apple-system, Segoe UI, Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", Meiryo, sans-serif}
+    .container{max-width:880px;margin:32px auto;padding:0 16px}
+    header h1{font-size:22px;margin:0 0 8px}
+    header p{margin:0;color:var(--muted)}
+    .card{background:var(--card);border-radius:16px;padding:16px;margin:16px 0;box-shadow:0 10px 24px rgba(0,0,0,.25)}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+    label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+    input,select{width:100%;padding:10px 12px;border-radius:12px;border:1px solid #2a3240;background:#0f141b;color:var(--fg)}
+    input:focus,select:focus{outline:2px solid var(--acc);border-color:transparent}
+    .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .btn{appearance:none;border:0;border-radius:999px;padding:10px 16px;background:var(--acc);color:#08231f;font-weight:700;cursor:pointer}
+    .btn.secondary{background:#253041;color:var(--fg)}
+    .btn.warning{background:var(--warn);color:#1b1302}
+    .btn.danger{background:var(--danger)}
+    .status{padding:10px 12px;border-radius:12px;font-size:14px}
+    .status.info{background:#1a2431}
+    .status.success{background:#043b2e}
+    .status.error{background:#3b0f16}
+    small.hint{color:var(--muted)}
+  </style>
+  <!-- LIFF SDK (v2) -->
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <!-- 共通プロフィール用 LIFFプラグイン（CDN） -->
+  <script src="https://static.line-scdn.net/5/liff-common-profile/edge/production/1.0.0/index.umd.cjs"></script>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>LIFF テストアプリ</h1>
-            <p>liff.$commonProfile.getDummy() のテスト</p>
-        </header>
+  <div class="container">
+    <header>
+      <h1>共通プロフィール：ダミーデータでフォーム自動入力</h1>
+      <p>liff.$commonProfile.getDummy() を使ってフォームに埋め込みます</p>
+    </header>
 
-        <main>
-            <div class="status-section">
-                <h2>LIFF ステータス</h2>
-                <div id="liff-status" class="status-box">
-                    <p>LIFF初期化中...</p>
-                </div>
-            </div>
-
-            <div class="profile-section">
-                <h2>プロフィール情報</h2>
-                <div id="profile-info" class="info-box">
-                    <p>プロフィール情報を取得中...</p>
-                </div>
-            </div>
-
-            <div class="dummy-section">
-                <h2>ダミーデータ</h2>
-                <div id="dummy-info" class="info-box">
-                    <p>ダミーデータを取得中...</p>
-                </div>
-                <button id="get-dummy-btn" class="btn" disabled>ダミーデータを取得</button>
-            </div>
-
-            <div class="actions-section">
-                <h2>アクション</h2>
-                <div class="button-group">
-                    <button id="refresh-btn" class="btn">リフレッシュ</button>
-                    <button id="clear-btn" class="btn btn-secondary">クリア</button>
-                </div>
-            </div>
-        </main>
-
-        <footer>
-            <p>このアプリはテスト用です</p>
-        </footer>
+    <div class="card">
+      <div id="status" class="status info">初期化中...</div>
+      <div class="row" style="margin-top:12px">
+        <label>
+          <span>ダミーケースID</span>
+          <select id="caseId">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+          </select>
+        </label>
+        <button id="btnFillDummy" class="btn">ダミーデータで自動入力</button>
+        <button id="btnClear" class="btn secondary">クリア</button>
+      </div>
+      <small class="hint">※ 実端末のLINEアプリ(iOS/Android)のLIFFブラウザでご確認ください（本番の <code>get()</code> は認証済みミニアプリ + 利用申請が必要）。</small>
     </div>
 
-    <!-- LIFF SDK -->
-    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-    <script src="app.js"></script>
+    <form id="signupForm" class="card" onsubmit="return false;">
+      <div class="grid">
+        <div>
+          <label for="family-name">氏名（姓）</label>
+          <input id="family-name" autocomplete="family-name" />
+        </div>
+        <div>
+          <label for="given-name">氏名（名）</label>
+          <input id="given-name" autocomplete="given-name" />
+        </div>
+        <div>
+          <label for="family-name-kana">フリガナ（姓）</label>
+          <input id="family-name-kana" />
+        </div>
+        <div>
+          <label for="given-name-kana">フリガナ（名）</label>
+          <input id="given-name-kana" />
+        </div>
+        <div>
+          <label for="sex-enum">性別</label>
+          <select id="sex-enum">
+            <option value="">未選択</option>
+            <option value="0">0：男性</option>
+            <option value="1">1：女性</option>
+            <option value="2">2：その他</option>
+            <option value="3">3：無回答</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-top:8px">
+        <div>
+          <label for="bday-year">誕生年</label>
+          <input id="bday-year" inputmode="numeric" pattern="[0-9]*" />
+        </div>
+        <div>
+          <label for="bday-month">誕生月</label>
+          <input id="bday-month" inputmode="numeric" pattern="[0-9]*" />
+        </div>
+        <div>
+          <label for="bday-day">誕生日</label>
+          <input id="bday-day" inputmode="numeric" pattern="[0-9]*" />
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top:8px">
+        <div>
+          <label for="tel">電話番号</label>
+          <input id="tel" autocomplete="tel-national" />
+        </div>
+        <div>
+          <label for="email">メールアドレス</label>
+          <input id="email" type="email" autocomplete="email" />
+        </div>
+      </div>
+
+      <div class="grid" style="margin-top:8px">
+        <div>
+          <label for="postal-code">郵便番号</label>
+          <input id="postal-code" autocomplete="postal-code" />
+        </div>
+        <div>
+          <label for="address-level1">住所（都道府県）</label>
+          <input id="address-level1" />
+        </div>
+        <div>
+          <label for="address-level2">住所（市区町村）</label>
+          <input id="address-level2" />
+        </div>
+        <div>
+          <label for="address-level3">住所（番地・丁目）</label>
+          <input id="address-level3" />
+        </div>
+        <div>
+          <label for="address-level4">住所（建物名・部屋番号）</label>
+          <input id="address-level4" />
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const LIFF_ID = '2008142178-4kM8l8Ea'; // ★ ご指定の LIFF ID
+
+    const scopes = [
+      'family-name','given-name','family-name-kana','given-name-kana',
+      'sex-enum','bday-day','bday-month','bday-year',
+      'tel','email','postal-code','address-level1','address-level2','address-level3','address-level4'
+    ];
+
+    const $ = (id) => document.getElementById(id);
+    const setStatus = (msg, type='info') => {
+      const el = $('status');
+      el.className = `status ${type}`;
+      el.textContent = msg;
+    };
+    const setVal = (id, v) => { const el = $(id); if (!el || v == null) return; el.value = String(v); };
+    const fillForm = (p) => {
+      setVal('family-name',     p['family-name']);
+      setVal('given-name',      p['given-name']);
+      setVal('family-name-kana',p['family-name-kana']);
+      setVal('given-name-kana', p['given-name-kana']);
+      setVal('sex-enum',        p['sex-enum']);
+      setVal('bday-year',       p['bday-year']);
+      setVal('bday-month',      p['bday-month']);
+      setVal('bday-day',        p['bday-day']);
+      setVal('tel',             p['tel']);
+      setVal('email',           p['email']);
+      setVal('postal-code',     p['postal-code']);
+      setVal('address-level1',  p['address-level1']);
+      setVal('address-level2',  p['address-level2']);
+      setVal('address-level3',  p['address-level3']);
+      setVal('address-level4',  p['address-level4']);
+    };
+
+    (async () => {
+      try {
+        // プラグイン有効化 → 初期化
+        liff.use(new liffCommonProfile.LiffCommonProfilePlugin());
+        await liff.init({ liffId: LIFF_ID });
+        setStatus(`LIFF 初期化に成功しました (${liff.isInClient() ? 'LINEアプリ内' : '外部ブラウザ'})`, 'success');
+      } catch (e) {
+        console.error(e);
+        setStatus('LIFF 初期化に失敗しました: ' + (e && e.message ? e.message : e), 'error');
+        return; // 以降の処理は行わない
+      }
+
+      // API 利用可否チェック
+      if (!(liff.$commonProfile && typeof liff.$commonProfile.getDummy === 'function')) {
+        setStatus('この環境では liff.$commonProfile.getDummy() を利用できません。SDKのバージョンや読込順を確認してください。', 'error');
+        return;
+      }
+
+      $('btnFillDummy').addEventListener('click', async () => {
+        const caseId = parseInt($('caseId').value, 10) || 1;
+        setStatus(`ダミーデータ取得中... (caseId=${caseId})`);
+        try {
+          // 署名：getDummy(scopes, caseId)
+          const result = await liff.$commonProfile.getDummy(scopes, caseId);
+          const data = result && typeof result === 'object' && 'data' in result ? result.data : result; // 返却形の差異を吸収
+          if (!data) throw new Error('ダミーデータの取得結果が空です');
+
+          // 可能なら fill() でフィールドに投入（対応しているフォーム名/属性がある場合）
+          if (typeof liff.$commonProfile.fill === 'function') {
+            try { liff.$commonProfile.fill(data); } catch (_) {}
+          }
+
+          // 確実に埋めるため手動でマッピング
+          fillForm(data);
+          setStatus('ダミーデータでフォームを自動入力しました。', 'success');
+        } catch (err) {
+          console.error('getDummy エラー:', err);
+          setStatus('ダミーデータ取得エラー: ' + (err && err.message ? err.message : err), 'error');
+        }
+      });
+
+      $('btnClear').addEventListener('click', () => {
+        document.querySelectorAll('input,select').forEach(el => el.value='');
+        setStatus('フォームをクリアしました', 'info');
+      });
+    })();
+  </script>
 </body>
 </html>
