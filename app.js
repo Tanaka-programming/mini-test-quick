@@ -1,7 +1,7 @@
 // LIFFアプリケーションのメインスクリプト
 class LiffApp {
     constructor() {
-        this.liffId = 'YOUR_LIFF_ID'; // 実際のLIFF IDに置き換えてください
+        this.liffId = '2008142180-LRyYxYa5'; // 実際のLIFF IDに置き換えてください
         this.isLiffReady = false;
         this.profile = null;
         this.dummyData = null;
@@ -209,3 +209,4 @@ class LiffApp {
 document.addEventListener('DOMContentLoaded', () => {
     new LiffApp();
 });
+
