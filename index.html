@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIFF テストアプリ - getDummy()</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>LIFF テストアプリ</h1>
+            <p>liff.$commonProfile.getDummy() のテスト</p>
+        </header>
+
+        <main>
+            <div class="status-section">
+                <h2>LIFF ステータス</h2>
+                <div id="liff-status" class="status-box">
+                    <p>LIFF初期化中...</p>
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <h2>プロフィール情報</h2>
+                <div id="profile-info" class="info-box">
+                    <p>プロフィール情報を取得中...</p>
+                </div>
+            </div>
+
+            <div class="dummy-section">
+                <h2>ダミーデータ</h2>
+                <div id="dummy-info" class="info-box">
+                    <p>ダミーデータを取得中...</p>
+                </div>
+                <button id="get-dummy-btn" class="btn" disabled>ダミーデータを取得</button>
+            </div>
+
+            <div class="actions-section">
+                <h2>アクション</h2>
+                <div class="button-group">
+                    <button id="refresh-btn" class="btn">リフレッシュ</button>
+                    <button id="clear-btn" class="btn btn-secondary">クリア</button>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>このアプリはテスト用です</p>
+        </footer>
+    </div>
+
+    <!-- LIFF SDK -->
+    <script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
