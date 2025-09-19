@@ -68,23 +68,23 @@
       <div class="grid">
         <div>
           <label for="family-name">氏名（姓）</label>
-          <input id="family-name" autocomplete="family-name" />
+          <input id="family-name" data-liff-autocomplete="family-name" autocomplete="family-name" />
         </div>
         <div>
           <label for="given-name">氏名（名）</label>
-          <input id="given-name" autocomplete="given-name" />
+          <input id="given-name" data-liff-autocomplete="given-name" autocomplete="given-name" />
         </div>
         <div>
           <label for="family-name-kana">フリガナ（姓）</label>
-          <input id="family-name-kana" />
+          <input id="family-name-kana" data-liff-autocomplete="family-name-kana" />
         </div>
         <div>
           <label for="given-name-kana">フリガナ（名）</label>
-          <input id="given-name-kana" />
+          <input id="given-name-kana" data-liff-autocomplete="given-name-kana" />
         </div>
         <div>
           <label for="sex-enum">性別</label>
-          <select id="sex-enum">
+          <select id="sex-enum" data-liff-autocomplete="sex-enum">
             <option value="">未選択</option>
             <option value="0">0：男性</option>
             <option value="1">1：女性</option>
@@ -97,49 +97,49 @@
       <div class="grid-3" style="margin-top:8px">
         <div>
           <label for="bday-year">誕生年</label>
-          <input id="bday-year" inputmode="numeric" pattern="[0-9]*" />
+          <input id="bday-year" data-liff-autocomplete="bday-year" inputmode="numeric" pattern="[0-9]*" />
         </div>
         <div>
           <label for="bday-month">誕生月</label>
-          <input id="bday-month" inputmode="numeric" pattern="[0-9]*" />
+          <input id="bday-month" data-liff-autocomplete="bday-month" inputmode="numeric" pattern="[0-9]*" />
         </div>
         <div>
           <label for="bday-day">誕生日</label>
-          <input id="bday-day" inputmode="numeric" pattern="[0-9]*" />
+          <input id="bday-day" data-liff-autocomplete="bday-day" inputmode="numeric" pattern="[0-9]*" />
         </div>
       </div>
 
       <div class="grid" style="margin-top:8px">
         <div>
           <label for="tel">電話番号</label>
-          <input id="tel" autocomplete="tel-national" />
+          <input id="tel" data-liff-autocomplete="tel" autocomplete="tel-national" />
         </div>
         <div>
           <label for="email">メールアドレス</label>
-          <input id="email" type="email" autocomplete="email" />
+          <input id="email" data-liff-autocomplete="email" type="email" autocomplete="email" />
         </div>
       </div>
 
       <div class="grid" style="margin-top:8px">
         <div>
           <label for="postal-code">郵便番号</label>
-          <input id="postal-code" autocomplete="postal-code" />
+          <input id="postal-code" data-liff-autocomplete="postal-code" autocomplete="postal-code" />
         </div>
         <div>
           <label for="address-level1">住所（都道府県）</label>
-          <input id="address-level1" />
+          <input id="address-level1" data-liff-autocomplete="address-level1" />
         </div>
         <div>
           <label for="address-level2">住所（市区町村）</label>
-          <input id="address-level2" />
+          <input id="address-level2" data-liff-autocomplete="address-level2" />
         </div>
         <div>
           <label for="address-level3">住所（番地・丁目）</label>
-          <input id="address-level3" />
+          <input id="address-level3" data-liff-autocomplete="address-level3" />
         </div>
         <div>
           <label for="address-level4">住所（建物名・部屋番号）</label>
-          <input id="address-level4" />
+          <input id="address-level4" data-liff-autocomplete="address-level4" />
         </div>
       </div>
     </form>
@@ -184,6 +184,10 @@
         // プラグイン有効化 → 初期化
         liff.use(new liffCommonProfile.LiffCommonProfilePlugin());
         await liff.init({ liffId: LIFF_ID });
+        if (!liff.isInClient()) {
+          setStatus('このAPIはLINEアプリ内（LIFFブラウザ）でのみ動作します。スマホのLINEから開いてください。', 'error');
+          return;
+        }
         setStatus(`LIFF 初期化に成功しました (${liff.isInClient() ? 'LINEアプリ内' : '外部ブラウザ'})`, 'success');
       } catch (e) {
         console.error(e);
@@ -202,8 +206,8 @@
         setStatus(`ダミーデータ取得中... (caseId=${caseId})`);
         try {
           // 署名：getDummy(scopes, caseId)
-          const result = await liff.$commonProfile.getDummy(scopes, caseId);
-          const data = result && typeof result === 'object' && 'data' in result ? result.data : result; // 返却形の差異を吸収
+          const { data, error } = await liff.$commonProfile.getDummy(scopes, {}, caseId);
+          if (!data) throw new Error('ダミーデータの取得結果が空です'); // 返却形の差異を吸収
           if (!data) throw new Error('ダミーデータの取得結果が空です');
 
           // 可能なら fill() でフィールドに投入（対応しているフォーム名/属性がある場合）
